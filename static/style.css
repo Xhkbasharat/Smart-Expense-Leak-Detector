@@ -1,0 +1,159 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080b18;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #111b3d, #241044);
+    border-bottom: 1px solid #343b75;
+}
+
+header h1 {
+    font-size: 32px;
+    color: #72b7ff;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #b7c4e8;
+}
+
+main {
+    width: 90%;
+    max-width: 950px;
+    margin: 35px auto;
+}
+
+.summary {
+    background: linear-gradient(135deg, #172c61, #452078);
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 25px;
+    box-shadow: 0 0 20px #263b91;
+}
+
+.summary h2 {
+    font-size: 20px;
+    color: #c6d8ff;
+}
+
+.summary h1 {
+    font-size: 38px;
+    margin-top: 12px;
+    color: #ffffff;
+}
+
+.card {
+    background: #11172b;
+    border: 1px solid #303c70;
+    border-radius: 14px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    color: #8abaff;
+    margin-bottom: 20px;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 15px;
+    background: #080d20;
+    border: 1px solid #46558d;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+}
+
+input:focus,
+select:focus {
+    outline: 2px solid #8061ff;
+}
+
+button {
+    background: linear-gradient(135deg, #2779ff, #833cff);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.expense-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 0;
+    border-bottom: 1px solid #303957;
+}
+
+.expense-item h3 {
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.expense-item p,
+.expense-item small {
+    color: #aab8d8;
+}
+
+.expense-item strong {
+    display: block;
+    color: #65e6bb;
+    margin-bottom: 10px;
+}
+
+.delete-btn {
+    background: #d93658;
+    padding: 8px 14px;
+    font-size: 12px;
+}
+
+.message {
+    background: #153c36;
+    color: #8fffd7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #8793b2;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 24px;
+    }
+
+    .expense-item {
+        align-items: flex-start;
+    }
+
+    .summary h1 {
+        font-size: 30px;
+    }
+}
