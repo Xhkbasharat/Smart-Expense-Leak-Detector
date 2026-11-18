@@ -1,4 +1,4 @@
-
+from collections import defaultdict
 from flask import Flask, render_template, request, redirect, url_for, flash
 from datetime import datetime
 from database import db, Expense
