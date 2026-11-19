@@ -1,9 +1,13 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Smart Expense Leak Detector</title>
 
     <link rel="stylesheet"
@@ -13,17 +17,20 @@
 <body>
 
 <header>
-    <h1>Smart Expense Leak Detector</h1>
-    <p>Track your spending. Find your money leaks.</p>
+    <h1>💸 Smart Expense Leak Detector</h1>
+    <p>Track Spending. Detect Money Leaks. Save Smarter.</p>
 </header>
 
 <main>
 
+    <!-- TOTAL SPENDING -->
     <section class="summary">
         <h2>Total Spending</h2>
         <h1>₹{{ "%.2f"|format(total) }}</h1>
     </section>
 
+
+    <!-- FLASH MESSAGES -->
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -32,10 +39,135 @@
         {% endif %}
     {% endwith %}
 
-    <section class="card">
-        <h2>Add New Expense</h2>
 
-        <form action="{{ url_for('add_expense') }}" method="POST">
+    <!-- MONTHLY BUDGET -->
+    <section class="card budget-card">
+
+        <h2>📅 Monthly Budget</h2>
+
+        <form action="{{ url_for('set_budget') }}"
+              method="POST">
+
+            <input type="month"
+                   name="month"
+                   value="{{ current_month }}"
+                   required>
+
+            <input type="number"
+                   name="amount"
+                   placeholder="Enter monthly budget (₹)"
+                   min="0.01"
+                   step="0.01"
+                   required>
+
+            <button type="submit">Set Budget</button>
+
+        </form>
+
+        <div class="budget-stats">
+
+            <div>
+                <p>Monthly Spending</p>
+                <h3>₹{{ "%.2f"|format(monthly_total) }}</h3>
+            </div>
+
+            <div>
+                <p>Monthly Budget</p>
+                <h3>₹{{ "%.2f"|format(budget_amount) }}</h3>
+            </div>
+
+        </div>
+
+        {% if budget_amount > 0 %}
+
+            {% if remaining >= 0 %}
+                <p>
+                    Remaining: ₹{{ "%.2f"|format(remaining) }}
+                </p>
+            {% else %}
+                <p>
+                    Overspent: ₹{{ "%.2f"|format(-remaining) }}
+                </p>
+            {% endif %}
+
+            <div class="budget-progress">
+
+                <div class="budget-progress-fill"
+                     style="width: {{ [budget_percentage, 100]|min }}%">
+                </div>
+
+            </div>
+
+            <p>{{ "%.1f"|format(budget_percentage) }}% of budget used</p>
+
+            {% if budget_percentage >= 100 %}
+                <p class="budget-alert danger">
+                    ⚠️ Monthly budget exceeded!
+                </p>
+
+            {% elif budget_percentage >= 80 %}
+                <p class="budget-alert warning">
+                    ⚠️ You are approaching your budget limit.
+                </p>
+
+            {% else %}
+                <p class="budget-alert safe">
+                    ✓ You are within your budget.
+                </p>
+            {% endif %}
+
+        {% else %}
+
+            <p>Set a monthly budget to start tracking.</p>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- MONEY LEAK DETECTION -->
+    <section class="card leak-card">
+
+        <h2>🚨 Money Leak Analysis</h2>
+
+        {% if leaks %}
+
+            {% for leak in leaks %}
+
+                <div class="leak-item">
+
+                    <h3>{{ leak.title }}</h3>
+
+                    <p>{{ leak.message }}</p>
+
+                    <strong>
+                        ₹{{ "%.2f"|format(leak.total) }}
+                    </strong>
+
+                    <small>
+                        {{ leak.count }} transactions
+                    </small>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>No potential money leaks detected yet.</p>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ADD EXPENSE -->
+    <section class="card">
+
+        <h2>➕ Add New Expense</h2>
+
+        <form action="{{ url_for('add_expense') }}"
+              method="POST">
 
             <input type="text"
                    name="title"
@@ -51,6 +183,7 @@
                    required>
 
             <select name="category" required>
+
                 <option value="">Select Category</option>
                 <option>Food</option>
                 <option>Transport</option>
@@ -58,6 +191,7 @@
                 <option>Bills</option>
                 <option>Entertainment</option>
                 <option>Other</option>
+
             </select>
 
             <input type="date"
@@ -67,51 +201,200 @@
             <button type="submit">Add Expense</button>
 
         </form>
+
     </section>
 
+
+    <!-- EXPENSE ANALYTICS -->
+    <section class="card analytics-card">
+
+        <h2>📊 Spending Analytics</h2>
+
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <h3 class="analytics-heading">
+            Category Breakdown
+        </h3>
+
+        <div class="category-list">
+
+            {% for category in chart_labels %}
+
+                <div class="category-item">
+
+                    <span>{{ category }}</span>
+
+                    <strong>
+                        ₹{{ "%.2f"|format(chart_values[loop.index0]) }}
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- SMART SAVING SUGGESTIONS -->
+    <section class="card savings-card">
+
+        <h2>💡 Smart Saving Suggestions</h2>
+
+        {% for tip in saving_tips %}
+
+            <div class="saving-item">
+
+                <h3>{{ tip.title }}</h3>
+
+                <p>{{ tip.message }}</p>
+
+                <div class="saving-suggestion">
+                    {{ tip.suggestion }}
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- EXPENSE HISTORY -->
     <section class="card">
-        <h2>Expense History</h2>
+
+        <h2>📋 Expense History</h2>
 
         {% if expenses %}
+
             <div class="expense-list">
 
                 {% for expense in expenses %}
+
                     <div class="expense-item">
 
                         <div>
+
                             <h3>{{ expense.title }}</h3>
+
                             <p>{{ expense.category }}</p>
-                            <small>{{ expense.expense_date }}</small>
+
+                            <small>
+                                {{ expense.expense_date }}
+                            </small>
+
                         </div>
 
                         <div>
+
                             <strong>
                                 ₹{{ "%.2f"|format(expense.amount) }}
                             </strong>
 
-                            <form action="{{ url_for('delete_expense', expense_id=expense.id) }}"
-                                  method="POST">
-                                <button class="delete-btn" type="submit">
+                            <form
+                                action="{{ url_for('delete_expense', expense_id=expense.id) }}"
+                                method="POST">
+
+                                <button class="delete-btn"
+                                        type="submit">
                                     Delete
                                 </button>
+
                             </form>
+
                         </div>
 
                     </div>
+
                 {% endfor %}
 
             </div>
+
         {% else %}
+
             <p>No expenses added yet.</p>
+
         {% endif %}
 
     </section>
 
 </main>
 
+
 <footer>
-    <p>Smart Expense Leak Detector | Built with Python & Flask</p>
+    <p>Smart Expense Leak Detector</p>
+    <p>Developed by Sheikh Basharat Akbar</p>
 </footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const labels = {{ chart_labels | tojson }};
+    const values = {{ chart_values | tojson }};
+
+    const canvas = document.getElementById("expenseChart");
+
+    if (canvas && labels.length > 0) {
+
+        new Chart(canvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [{
+
+                    data: values,
+
+                    backgroundColor: [
+                        "#6366f1",
+                        "#8b5cf6",
+                        "#06b6d4",
+                        "#10b981",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#ec4899"
+                    ],
+
+                    borderColor: "#11172b",
+                    borderWidth: 3
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: "bottom",
+
+                        labels: {
+                            color: "#e2e8f0",
+                            padding: 20
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+</script>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
