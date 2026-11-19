@@ -1,9 +1,22 @@
-from savings_advisor import generate_saving_tips
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash
+)
+
+from datetime import datetime, date
 from collections import defaultdict
-from flask import Flask, render_template, request, redirect, url_for, flash
-from datetime import datetime
-from database import db, Expense
+
+from database import db, Expense, Budget
 from config import Config
+
+from leak_detector import detect_money_leaks
+from savings_advisor import generate_saving_tips
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -14,28 +27,84 @@ with app.app_context():
     db.create_all()
 
 
+# HOME DASHBOARD
 @app.route("/")
 def home():
+
     expenses = Expense.query.order_by(
         Expense.expense_date.desc()
     ).all()
 
-    total = sum(expense.amount for expense in expenses)
+    total = sum(
+        expense.amount for expense in expenses
+    )
+
+    # Monthly budget calculations
+    current_month = date.today().strftime("%Y-%m")
+
+    monthly_expenses = [
+        expense for expense in expenses
+        if expense.expense_date.strftime("%Y-%m") == current_month
+    ]
+
+    monthly_total = sum(
+        expense.amount for expense in monthly_expenses
+    )
+
+    budget = Budget.query.filter_by(
+        month=current_month
+    ).first()
+
+    budget_amount = budget.amount if budget else 0
+
+    remaining = budget_amount - monthly_total
+
+    budget_percentage = (
+        (monthly_total / budget_amount) * 100
+        if budget_amount > 0 else 0
+    )
+
+    # Money leak detection
+    leaks = detect_money_leaks(expenses)
+
+    # Expense analytics
+    category_totals = defaultdict(float)
+
+    for expense in expenses:
+        category_totals[expense.category] += expense.amount
+
+    chart_labels = list(category_totals.keys())
+    chart_values = list(category_totals.values())
+
+    # Smart saving suggestions
+    saving_tips = generate_saving_tips(expenses)
 
     return render_template(
         "index.html",
         expenses=expenses,
-        total=total
+        total=total,
+        leaks=leaks,
+        current_month=current_month,
+        monthly_total=monthly_total,
+        budget_amount=budget_amount,
+        remaining=remaining,
+        budget_percentage=budget_percentage,
+        chart_labels=chart_labels,
+        chart_values=chart_values,
+        saving_tips=saving_tips
     )
 
 
+# ADD EXPENSE
 @app.route("/add", methods=["POST"])
 def add_expense():
+
     title = request.form.get("title", "").strip()
     category = request.form.get("category", "").strip()
 
     try:
         amount = float(request.form.get("amount", ""))
+
         expense_date = datetime.strptime(
             request.form.get("expense_date", ""),
             "%Y-%m-%d"
@@ -59,17 +128,62 @@ def add_expense():
     db.session.commit()
 
     flash("Expense added successfully!")
+
     return redirect(url_for("home"))
 
 
+# DELETE EXPENSE
 @app.route("/delete/<int:expense_id>", methods=["POST"])
 def delete_expense(expense_id):
+
     expense = db.session.get(Expense, expense_id)
 
     if expense:
         db.session.delete(expense)
         db.session.commit()
+
         flash("Expense deleted successfully!")
+
+    return redirect(url_for("home"))
+
+
+# SET MONTHLY BUDGET
+@app.route("/budget", methods=["POST"])
+def set_budget():
+
+    month = request.form.get("month", "").strip()
+    amount = request.form.get("amount", "")
+
+    try:
+        datetime.strptime(month, "%Y-%m")
+
+        amount = float(amount)
+
+        if amount <= 0:
+            raise ValueError
+
+    except (ValueError, TypeError):
+        flash("Please enter a valid monthly budget.")
+        return redirect(url_for("home"))
+
+    budget = Budget.query.filter_by(
+        month=month
+    ).first()
+
+    if budget:
+        budget.amount = amount
+
+    else:
+        budget = Budget(
+            month=month,
+            amount=amount
+        )
+
+        db.session.add(budget)
+
+    db.session.commit()
+
+    flash("Monthly budget saved successfully!")
 
     return redirect(url_for("home"))
 
