@@ -1,9 +1,20 @@
 
+/* =========================================
+   SMART EXPENSE LEAK DETECTOR
+   Premium Dark Blue & Purple Dashboard
+========================================= */
+
+
+/* GLOBAL RESET */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+
+/* BODY */
 
 body {
     font-family: Arial, sans-serif;
@@ -12,10 +23,17 @@ body {
     min-height: 100vh;
 }
 
+
+/* HEADER */
+
 header {
     text-align: center;
     padding: 40px 20px;
-    background: linear-gradient(135deg, #111b3d, #241044);
+    background: linear-gradient(
+        135deg,
+        #111b3d,
+        #241044
+    );
     border-bottom: 1px solid #343b75;
 }
 
@@ -27,7 +45,11 @@ header h1 {
 
 header p {
     color: #b7c4e8;
+    font-size: 15px;
 }
+
+
+/* MAIN CONTAINER */
 
 main {
     width: 90%;
@@ -35,8 +57,15 @@ main {
     margin: 35px auto;
 }
 
+
+/* TOTAL SPENDING SUMMARY */
+
 .summary {
-    background: linear-gradient(135deg, #172c61, #452078);
+    background: linear-gradient(
+        135deg,
+        #172c61,
+        #452078
+    );
     padding: 30px;
     border-radius: 16px;
     text-align: center;
@@ -55,18 +84,30 @@ main {
     color: #ffffff;
 }
 
+
+/* GENERAL CARDS */
+
 .card {
     background: #11172b;
     border: 1px solid #303c70;
     border-radius: 14px;
     padding: 25px;
     margin-bottom: 25px;
+    transition: 0.3s ease;
+}
+
+.card:hover {
+    border-color: #6555c7;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.12);
 }
 
 .card h2 {
     color: #8abaff;
     margin-bottom: 20px;
 }
+
+
+/* FORM INPUTS */
 
 form input,
 form select {
@@ -80,23 +121,266 @@ form select {
     font-size: 15px;
 }
 
+form input::placeholder {
+    color: #8996b7;
+}
+
 input:focus,
 select:focus {
     outline: 2px solid #8061ff;
+    border-color: #8061ff;
 }
 
+select option {
+    background: #11172b;
+    color: white;
+}
+
+
+/* BUTTONS */
+
 button {
-    background: linear-gradient(135deg, #2779ff, #833cff);
+    background: linear-gradient(
+        135deg,
+        #2779ff,
+        #833cff
+    );
     color: white;
     border: none;
     padding: 12px 22px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: 0.3s ease;
 }
 
 button:hover {
     opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+
+/* FLASH MESSAGE */
+
+.message {
+    background: #153c36;
+    color: #8fffd7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================
+   MONTHLY BUDGET
+========================================= */
+
+.budget-card {
+    border: 1px solid #3158a5;
+    background: linear-gradient(
+        135deg,
+        #111b34,
+        #17132e
+    );
+}
+
+.budget-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.budget-stats p {
+    color: #aab8d8;
+    margin-bottom: 6px;
+}
+
+.budget-stats h3 {
+    color: #67d5ff;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.budget-progress {
+    height: 14px;
+    width: 100%;
+    background: #252d46;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #2979ff,
+        #a855f7
+    );
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+.budget-alert {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.budget-alert.safe {
+    background: #123b32;
+    color: #6ee7b7;
+}
+
+.budget-alert.warning {
+    background: #47351b;
+    color: #fbbf24;
+}
+
+.budget-alert.danger {
+    background: #471e2c;
+    color: #fb7185;
+}
+
+
+/* =========================================
+   MONEY LEAK DETECTION
+========================================= */
+
+.leak-card {
+    border: 1px solid #8c42ff;
+    background: linear-gradient(
+        135deg,
+        #17132c,
+        #101a35
+    );
+}
+
+.leak-item {
+    background: #1b2139;
+    border-left: 4px solid #a855f7;
+    padding: 18px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+
+.leak-item h3 {
+    color: #c084fc;
+    margin-bottom: 8px;
+}
+
+.leak-item p {
+    color: #cbd5e1;
+    margin-bottom: 10px;
+}
+
+.leak-item strong {
+    display: block;
+    color: #fbbf24;
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.leak-item small {
+    color: #94a3b8;
+}
+
+
+/* =========================================
+   EXPENSE ANALYTICS
+========================================= */
+
+.analytics-card {
+    border: 1px solid #394779;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: 350px;
+    margin: 20px auto;
+}
+
+.analytics-heading {
+    color: #a78bfa;
+    margin: 25px 0 15px;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #171e35;
+    border: 1px solid #293653;
+    padding: 15px;
+    border-radius: 9px;
+}
+
+.category-item span {
+    color: #cbd5e1;
+}
+
+.category-item strong {
+    color: #67e8f9;
+}
+
+
+/* =========================================
+   SMART SAVING SUGGESTIONS
+========================================= */
+
+.savings-card {
+    border: 1px solid #287d76;
+    background: linear-gradient(
+        135deg,
+        #102b31,
+        #15172f
+    );
+}
+
+.saving-item {
+    background: #172a35;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #2dd4bf;
+}
+
+.saving-item h3 {
+    color: #5eead4;
+    margin-bottom: 10px;
+}
+
+.saving-item p {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.saving-suggestion {
+    color: #a7f3d0;
+    background: #123b35;
+    padding: 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   EXPENSE HISTORY
+========================================= */
+
+.expense-list {
+    display: flex;
+    flex-direction: column;
 }
 
 .expense-item {
@@ -106,6 +390,10 @@ button:hover {
     gap: 15px;
     padding: 18px 0;
     border-bottom: 1px solid #303957;
+}
+
+.expense-item:last-child {
+    border-bottom: none;
 }
 
 .expense-item h3 {
@@ -124,36 +412,80 @@ button:hover {
     margin-bottom: 10px;
 }
 
+
+/* DELETE BUTTON */
+
 .delete-btn {
     background: #d93658;
     padding: 8px 14px;
     font-size: 12px;
 }
 
-.message {
-    background: #153c36;
-    color: #8fffd7;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+.delete-btn:hover {
+    background: #ef4444;
 }
+
+
+/* FOOTER */
 
 footer {
     text-align: center;
     padding: 25px;
     color: #8793b2;
+    line-height: 1.8;
+    border-top: 1px solid #252e4b;
 }
 
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
 @media (max-width: 600px) {
+
+    header {
+        padding: 30px 15px;
+    }
+
     header h1 {
         font-size: 24px;
+    }
+
+    main {
+        width: 94%;
+        margin: 20px auto;
+    }
+
+    .summary {
+        padding: 25px 15px;
+    }
+
+    .summary h1 {
+        font-size: 30px;
+    }
+
+    .card {
+        padding: 18px;
     }
 
     .expense-item {
         align-items: flex-start;
     }
 
-    .summary h1 {
-        font-size: 30px;
+    .budget-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        height: 280px;
+    }
+
+    button {
+        max-width: 100%;
     }
 }
+
+
+/* =========================================
+   END OF STYLESHEET
+========================================= */
