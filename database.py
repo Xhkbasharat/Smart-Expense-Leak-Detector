@@ -5,8 +5,16 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
+# =====================================
+# EXPENSE MODEL
+# =====================================
+
 class Expense(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     title = db.Column(
         db.String(100),
@@ -34,18 +42,26 @@ class Expense(db.Model):
     )
 
     def to_dict(self):
+
         return {
             "id": self.id,
             "title": self.title,
             "amount": self.amount,
             "category": self.category,
             "expense_date": self.expense_date.isoformat(),
-            "created_at": self.created_at.isoformat()
-            if self.created_at else None
+            "created_at": (
+                self.created_at.isoformat()
+                if self.created_at else None
+            )
         }
 
 
+# =====================================
+# MONTHLY BUDGET MODEL
+# =====================================
+
 class Budget(db.Model):
+
     id = db.Column(
         db.Integer,
         primary_key=True
@@ -68,10 +84,13 @@ class Budget(db.Model):
     )
 
     def to_dict(self):
+
         return {
             "id": self.id,
             "month": self.month,
             "amount": self.amount,
-            "created_at": self.created_at.isoformat()
-            if self.created_at else None
+            "created_at": (
+                self.created_at.isoformat()
+                if self.created_at else None
+            )
         }
