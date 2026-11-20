@@ -1,15 +1,19 @@
 
+import csv
+import io
+
+from datetime import datetime, date
+from collections import defaultdict
+
 from flask import (
     Flask,
     render_template,
     request,
     redirect,
     url_for,
-    flash
+    flash,
+    make_response
 )
-
-from datetime import datetime, date
-from collections import defaultdict
 
 from database import db, Expense, Budget
 from config import Config
@@ -17,6 +21,10 @@ from config import Config
 from leak_detector import detect_money_leaks
 from savings_advisor import generate_saving_tips
 
+
+# =====================================
+# APPLICATION CONFIGURATION
+# =====================================
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -27,7 +35,10 @@ with app.app_context():
     db.create_all()
 
 
+# =====================================
 # HOME DASHBOARD
+# =====================================
+
 @app.route("/")
 def home():
 
@@ -39,18 +50,20 @@ def home():
         expense.amount for expense in expenses
     )
 
-    # Monthly budget calculations
     current_month = date.today().strftime("%Y-%m")
 
+    # Monthly spending
     monthly_expenses = [
         expense for expense in expenses
-        if expense.expense_date.strftime("%Y-%m") == current_month
+        if expense.expense_date.strftime("%Y-%m")
+        == current_month
     ]
 
     monthly_total = sum(
         expense.amount for expense in monthly_expenses
     )
 
+    # Monthly budget
     budget = Budget.query.filter_by(
         month=current_month
     ).first()
@@ -67,7 +80,7 @@ def home():
     # Money leak detection
     leaks = detect_money_leaks(expenses)
 
-    # Expense analytics
+    # Category analytics
     category_totals = defaultdict(float)
 
     for expense in expenses:
@@ -76,7 +89,7 @@ def home():
     chart_labels = list(category_totals.keys())
     chart_values = list(category_totals.values())
 
-    # Smart saving suggestions
+    # Saving recommendations
     saving_tips = generate_saving_tips(expenses)
 
     return render_template(
@@ -95,22 +108,36 @@ def home():
     )
 
 
+# =====================================
 # ADD EXPENSE
+# =====================================
+
 @app.route("/add", methods=["POST"])
 def add_expense():
 
-    title = request.form.get("title", "").strip()
-    category = request.form.get("category", "").strip()
+    title = request.form.get(
+        "title", ""
+    ).strip()
+
+    category = request.form.get(
+        "category", ""
+    ).strip()
 
     try:
-        amount = float(request.form.get("amount", ""))
+        amount = float(
+            request.form.get("amount", "")
+        )
 
         expense_date = datetime.strptime(
             request.form.get("expense_date", ""),
             "%Y-%m-%d"
         ).date()
 
-        if not title or not category or amount <= 0:
+        if (
+            not title
+            or not category
+            or amount <= 0
+        ):
             raise ValueError
 
     except (ValueError, TypeError):
@@ -132,11 +159,20 @@ def add_expense():
     return redirect(url_for("home"))
 
 
+# =====================================
 # DELETE EXPENSE
-@app.route("/delete/<int:expense_id>", methods=["POST"])
+# =====================================
+
+@app.route(
+    "/delete/<int:expense_id>",
+    methods=["POST"]
+)
 def delete_expense(expense_id):
 
-    expense = db.session.get(Expense, expense_id)
+    expense = db.session.get(
+        Expense,
+        expense_id
+    )
 
     if expense:
         db.session.delete(expense)
@@ -144,15 +180,26 @@ def delete_expense(expense_id):
 
         flash("Expense deleted successfully!")
 
+    else:
+        flash("Expense not found.")
+
     return redirect(url_for("home"))
 
 
+# =====================================
 # SET MONTHLY BUDGET
+# =====================================
+
 @app.route("/budget", methods=["POST"])
 def set_budget():
 
-    month = request.form.get("month", "").strip()
-    amount = request.form.get("amount", "")
+    month = request.form.get(
+        "month", ""
+    ).strip()
+
+    amount = request.form.get(
+        "amount", ""
+    )
 
     try:
         datetime.strptime(month, "%Y-%m")
@@ -187,6 +234,81 @@ def set_budget():
 
     return redirect(url_for("home"))
 
+
+# =====================================
+# DOWNLOAD MONTHLY EXPENSE REPORT
+# =====================================
+
+@app.route("/download-report")
+def download_report():
+
+    month = request.args.get(
+        "month",
+        date.today().strftime("%Y-%m")
+    )
+
+    try:
+        datetime.strptime(month, "%Y-%m")
+
+    except ValueError:
+        flash("Invalid report month.")
+        return redirect(url_for("home"))
+
+    year = int(month[:4])
+    month_number = int(month[5:7])
+
+    expenses = Expense.query.filter(
+        db.extract(
+            "year",
+            Expense.expense_date
+        ) == year,
+
+        db.extract(
+            "month",
+            Expense.expense_date
+        ) == month_number
+
+    ).order_by(
+        Expense.expense_date.asc()
+    ).all()
+
+    output = io.StringIO()
+
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Expense Name",
+        "Amount",
+        "Category",
+        "Date"
+    ])
+
+    for expense in expenses:
+        writer.writerow([
+            expense.title,
+            expense.amount,
+            expense.category,
+            expense.expense_date
+        ])
+
+    response = make_response(
+        "\ufeff" + output.getvalue()
+    )
+
+    response.headers["Content-Type"] = (
+        "text/csv; charset=utf-8"
+    )
+
+    response.headers["Content-Disposition"] = (
+        f"attachment; filename=expense_report_{month}.csv"
+    )
+
+    return response
+
+
+# =====================================
+# APPLICATION START
+# =====================================
 
 if __name__ == "__main__":
     app.run(debug=True)
