@@ -25,18 +25,29 @@
 
     <!-- TOTAL SPENDING -->
     <section class="summary">
+
         <h2>Total Spending</h2>
-        <h1>₹{{ "%.2f"|format(total) }}</h1>
+
+        <h1>
+            ₹{{ "%.2f"|format(total) }}
+        </h1>
+
     </section>
 
 
     <!-- FLASH MESSAGES -->
     {% with messages = get_flashed_messages() %}
+
         {% if messages %}
+
             {% for message in messages %}
+
                 <p class="message">{{ message }}</p>
+
             {% endfor %}
+
         {% endif %}
+
     {% endwith %}
 
 
@@ -60,7 +71,9 @@
                    step="0.01"
                    required>
 
-            <button type="submit">Set Budget</button>
+            <button type="submit">
+                Set Budget
+            </button>
 
         </form>
 
@@ -68,12 +81,18 @@
 
             <div>
                 <p>Monthly Spending</p>
-                <h3>₹{{ "%.2f"|format(monthly_total) }}</h3>
+
+                <h3>
+                    ₹{{ "%.2f"|format(monthly_total) }}
+                </h3>
             </div>
 
             <div>
                 <p>Monthly Budget</p>
-                <h3>₹{{ "%.2f"|format(budget_amount) }}</h3>
+
+                <h3>
+                    ₹{{ "%.2f"|format(budget_amount) }}
+                </h3>
             </div>
 
         </div>
@@ -81,13 +100,19 @@
         {% if budget_amount > 0 %}
 
             {% if remaining >= 0 %}
+
                 <p>
-                    Remaining: ₹{{ "%.2f"|format(remaining) }}
+                    Remaining:
+                    ₹{{ "%.2f"|format(remaining) }}
                 </p>
+
             {% else %}
+
                 <p>
-                    Overspent: ₹{{ "%.2f"|format(-remaining) }}
+                    Overspent:
+                    ₹{{ "%.2f"|format(-remaining) }}
                 </p>
+
             {% endif %}
 
             <div class="budget-progress">
@@ -98,22 +123,29 @@
 
             </div>
 
-            <p>{{ "%.1f"|format(budget_percentage) }}% of budget used</p>
+            <p>
+                {{ "%.1f"|format(budget_percentage) }}%
+                of budget used
+            </p>
 
             {% if budget_percentage >= 100 %}
+
                 <p class="budget-alert danger">
                     ⚠️ Monthly budget exceeded!
                 </p>
 
             {% elif budget_percentage >= 80 %}
+
                 <p class="budget-alert warning">
-                    ⚠️ You are approaching your budget limit.
+                    ⚠️ Approaching your budget limit!
                 </p>
 
             {% else %}
+
                 <p class="budget-alert safe">
                     ✓ You are within your budget.
                 </p>
+
             {% endif %}
 
         {% else %}
@@ -121,6 +153,21 @@
             <p>Set a monthly budget to start tracking.</p>
 
         {% endif %}
+
+        <!-- DOWNLOAD MONTHLY REPORT -->
+        <form action="{{ url_for('download_report') }}"
+              method="GET">
+
+            <input type="month"
+                   name="month"
+                   value="{{ current_month }}"
+                   required>
+
+            <button type="submit">
+                📥 Download Monthly Report
+            </button>
+
+        </form>
 
     </section>
 
@@ -185,6 +232,7 @@
             <select name="category" required>
 
                 <option value="">Select Category</option>
+
                 <option>Food</option>
                 <option>Transport</option>
                 <option>Shopping</option>
@@ -198,7 +246,9 @@
                    name="expense_date"
                    required>
 
-            <button type="submit">Add Expense</button>
+            <button type="submit">
+                Add Expense
+            </button>
 
         </form>
 
@@ -211,7 +261,9 @@
         <h2>📊 Spending Analytics</h2>
 
         <div class="chart-container">
+
             <canvas id="expenseChart"></canvas>
+
         </div>
 
         <h3 class="analytics-heading">
@@ -235,6 +287,12 @@
             {% endfor %}
 
         </div>
+
+        {% if not chart_labels %}
+
+            <p>No analytics available yet.</p>
+
+        {% endif %}
 
     </section>
 
@@ -324,16 +382,23 @@
 </main>
 
 
+<!-- FOOTER -->
 <footer>
+
     <p>Smart Expense Leak Detector</p>
+
     <p>Developed by Sheikh Basharat Akbar</p>
+
 </footer>
 
 
+<!-- CHART.JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+
     const labels = {{ chart_labels | tojson }};
+
     const values = {{ chart_values | tojson }};
 
     const canvas = document.getElementById("expenseChart");
@@ -363,6 +428,7 @@
                     ],
 
                     borderColor: "#11172b",
+
                     borderWidth: 3
 
                 }]
@@ -372,6 +438,7 @@
             options: {
 
                 responsive: true,
+
                 maintainAspectRatio: false,
 
                 plugins: {
@@ -381,8 +448,11 @@
                         position: "bottom",
 
                         labels: {
+
                             color: "#e2e8f0",
+
                             padding: 20
+
                         }
 
                     }
@@ -394,7 +464,9 @@
         });
 
     }
+
 </script>
+
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
